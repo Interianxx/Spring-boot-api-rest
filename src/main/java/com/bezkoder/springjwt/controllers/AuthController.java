@@ -31,6 +31,7 @@ import com.bezkoder.springjwt.repository.RoleRepository;
 import com.bezkoder.springjwt.repository.UserRepository;
 import com.bezkoder.springjwt.security.jwt.JwtUtils;
 import com.bezkoder.springjwt.security.services.UserDetailsImpl;
+import com.bezkoder.springjwt.services.NotificationService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -51,6 +52,9 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
+  @Autowired
+  NotificationService notificationService;
+
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -59,17 +63,34 @@ public class AuthController {
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
-    
+
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();    
     List<String> roles = userDetails.getAuthorities().stream()
         .map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
+    // Get the full user object
+    User user = userRepository.findById(userDetails.getId())
+        .orElseThrow(() -> new RuntimeException("User not found with id: " + userDetails.getId()));
+
+    // Create a welcome notification if the user has no notifications
+    if (notificationService.countUnreadNotificationsForUser(userDetails.getId()) == 0) {
+      notificationService.createNotification(
+          user,
+          "¡Bienvenido a la aplicación!",
+          "Gracias por iniciar sesión. Aquí verás notificaciones importantes sobre tus eventos y actividades."
+      );
+    }
+
+    // Get count of unread notifications for the user (after potentially creating a new one)
+    long unreadNotifications = notificationService.countUnreadNotificationsForUser(userDetails.getId());
+
     return ResponseEntity.ok(new JwtResponse(jwt, 
                          userDetails.getId(), 
                          userDetails.getUsername(), 
                          userDetails.getEmail(), 
-                         roles));
+                         roles,
+                         unreadNotifications));
   }
 
   @PostMapping("/signup")
@@ -122,7 +143,14 @@ public class AuthController {
     }
 
     user.setRoles(roles);
-    userRepository.save(user);
+    User savedUser = userRepository.save(user);
+
+    // Create a welcome notification for the new user
+    notificationService.createNotification(
+        savedUser,
+        "¡Bienvenido a la aplicación!",
+        "Gracias por registrarte. Aquí verás notificaciones importantes sobre tus eventos y actividades."
+    );
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }

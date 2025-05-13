@@ -9,6 +9,7 @@ public class JwtResponse {
   private String username;
   private String email;
   private List<String> roles;
+  private long unreadNotifications;
 
   public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
     this.token = accessToken;
@@ -16,6 +17,16 @@ public class JwtResponse {
     this.username = username;
     this.email = email;
     this.roles = roles;
+    this.unreadNotifications = 0;
+  }
+
+  public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles, long unreadNotifications) {
+    this.token = accessToken;
+    this.id = id;
+    this.username = username;
+    this.email = email;
+    this.roles = roles;
+    this.unreadNotifications = unreadNotifications;
   }
 
   public String getAccessToken() {
@@ -60,5 +71,13 @@ public class JwtResponse {
 
   public List<String> getRoles() {
     return roles;
+  }
+
+  public long getUnreadNotifications() {
+    return unreadNotifications;
+  }
+
+  public void setUnreadNotifications(long unreadNotifications) {
+    this.unreadNotifications = unreadNotifications;
   }
 }
