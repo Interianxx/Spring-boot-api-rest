@@ -60,3 +60,13 @@ Este proyecto es una aplicación web desarrollada con **Spring Boot** en el back
 3. Ejecuta el proyecto con Maven:
    ```bash
    mvn spring-boot:run
+
+## Esta aplicacion fue basada en un proyecto de SpringBoot con Autenticacion de JWT, sin embargo, el calendario, las notificaciones, el crud de contactos y categorias fue por nuestra cuenta, a continuación enviare las paginas en donde partimos para el proyecto
+
+- https://www.bezkoder.com/spring-boot-react-jwt-auth/
+- https://www.bezkoder.com/spring-boot-react-jwt-auth/
+
+## Autores 
+
+- **Nombre**: [Jose Alejandro Interian Pech, Carla Escalante, Jose Ramirez]
+- **Email**: [al070687@uacam.mx, al064216@uacam.mx, al064255@uacam.mx]]
